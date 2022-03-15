@@ -32,7 +32,6 @@ def bulk_data(keyword):
 
 
 if __name__ == "__main__":
-     for i in gendata("조선"):
-        print(i)
+    bulk_data("조선")
 
 
