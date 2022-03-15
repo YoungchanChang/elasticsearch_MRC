@@ -1,8 +1,10 @@
 from typing import Generator
 
 import wikipediaapi
-from domain.domain_data import WikiItem
 from kss import split_sentences
+
+from domain.custome_error import WikiDataException
+from domain.domain_data import WikiItem
 
 wiki_wiki = wikipediaapi.Wikipedia('ko')
 
@@ -10,6 +12,9 @@ wiki_wiki = wikipediaapi.Wikipedia('ko')
 def get_wiki_data(keyword: str) -> Generator:
 
     page_py = wiki_wiki.page(keyword)
+
+    if page_py.text == '':
+        raise WikiDataException
 
     for page_item in split_sentences(page_py.summary):
         yield WikiItem(title=page_py.title,
