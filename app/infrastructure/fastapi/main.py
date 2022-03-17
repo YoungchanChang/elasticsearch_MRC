@@ -1,10 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
 from app.infrastructure.fastapi import mrc_api
+from scripts.elastic_index import exists_index
 
 app = FastAPI()
 
 app.include_router(mrc_api.router)
+
+exists_index()
 
 if __name__ == "__main__":
     uvicorn.run(
