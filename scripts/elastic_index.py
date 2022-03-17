@@ -1,5 +1,5 @@
-from database.elastic_conn import *
-from config.settings import *
+from app.infrastructure.database.elastic_conn import *
+from app.config.settings import *
 
 
 def set_wiki_index():

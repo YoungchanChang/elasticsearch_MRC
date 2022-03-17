@@ -4,9 +4,9 @@ from elasticsearch import helpers
 
 from pororo import Pororo
 
-from config.settings import elastic_index
-from controller.wikipedia_data import get_wiki_data
-from database.elastic_conn import es
+from app.config.settings import elastic_index
+from app.controller.wikipedia_data import get_wiki_data
+from app.infrastructure.database.elastic_conn import es
 
 se = Pororo(task="sentence_embedding", lang="ko")
 
