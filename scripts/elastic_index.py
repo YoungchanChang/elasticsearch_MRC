@@ -36,7 +36,13 @@ def set_wiki_index():
     print(ans)
 
 
+def exists_index():
+    es_alias = es.indices.get_alias().keys()
+    if "my-approx-knn-index-test" not in es_alias:
+        set_wiki_index()
+
 if __name__ == '__main__':
-    set_wiki_index()
+
+    exists_index()
 
 
