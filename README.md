@@ -1,12 +1,10 @@
 # elasticsearch_MRC
 
 - 엘라스틱서치 knn알고리즘을 사용하여 MRC 답변 향상
-
 - 엘라스틱서치 8.0 이상
-- database/http_ca.crt 변경 필수
-- 
+- app/infrastructure/database/http_ca.crt 변경 필수(ref : https://chatbottalk.tistory.com/244)
 
-# 실행 순서
+## 실행 순서
 
 1. 필수 라이브러리 설치
 
@@ -26,8 +24,10 @@ elastic_index.py
 
 - request
 
-![](../Screen Shot 2022-03-17 at 2.55.46 PM.png)
+<img width="1456" alt="Screen Shot 2022-03-17 at 2 55 46 PM" src="https://user-images.githubusercontent.com/40015958/158746631-a07b9655-0de6-4127-bb3f-6669087abe2d.png">
+
 
 - return
 
-![](../Screen Shot 2022-03-17 at 2.55.52 PM.png)
+<img width="1534" alt="Screen Shot 2022-03-17 at 2 55 52 PM" src="https://user-images.githubusercontent.com/40015958/158746646-e8aef997-99a7-4c5a-aec3-07e7fcbd28dc.png">
+
