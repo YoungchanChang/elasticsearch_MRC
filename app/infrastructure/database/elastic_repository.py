@@ -11,14 +11,27 @@ from elasticsearch import helpers
 class WikiSearch(AbstractRepository):
 
     def create(self, model: WikiQuestionItemDTO):
+        """
+        위키피디아에서 검색 후 데이터 생성
+        :param model: 위키피디아 주제, 질문 데이터
+        :return:
+        """
         result = helpers.bulk(es, gen_mrc_data(model.title))
         return result
 
     def find_one(self, model: WikiQuestionItemDTO):
+
+        """
+        제목 찾고 없으면 위키피디아에서 검색 후 생성
+        :param model: 위키피디아 주제, 질문 데이터
+        :return: 성공 여부
+        """
+
         result = es.search(index=elastic_index, body=get_es_title_template(model.title))
         hit_len = len(result.body['hits']['hits'])
         if hit_len == 0:
-            raise WikiDataException("위키피디아 데이터 없음")
+            # 없으면 생성, 못 찾으면 에러 반환
+            self.create(model)
         return result
 
 
