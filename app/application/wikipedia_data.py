@@ -4,17 +4,23 @@ import wikipediaapi
 from kss import split_sentences
 
 from app.domain.custome_error import WikiDataException
-from app.domain.domain_data import WikiItem
+from app.domain.domain import WikiItem
 
 wiki_wiki = wikipediaapi.Wikipedia('ko')
 
 
 def get_wiki_data(keyword: str) -> Generator:
 
+    """
+    위키피디아 데이터 검색 후 값 가져오는 함수
+    :param keyword: 검색 키워드
+    :return: 검색 후 템플릿으로 변경
+    """
+
     page_py = wiki_wiki.page(keyword)
 
     if page_py.text == '':
-        raise WikiDataException
+        raise WikiDataException("위키피디아 데이터 없음")
 
     for page_item in split_sentences(page_py.summary):
         yield WikiItem(title=page_py.title,
