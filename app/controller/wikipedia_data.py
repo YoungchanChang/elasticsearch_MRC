@@ -3,8 +3,8 @@ from typing import Generator
 import wikipediaapi
 from kss import split_sentences
 
-from domain.custome_error import WikiDataException
-from domain.domain_data import WikiItem
+from app.domain.custome_error import WikiDataException
+from app.domain.domain_data import WikiItem
 
 wiki_wiki = wikipediaapi.Wikipedia('ko')
 
