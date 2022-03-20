@@ -23,7 +23,6 @@ class WikiQuestionItemDTO(Domain):
 
 
 class WikiQuestionItem(BaseModel):
-    title: str
     question: str
 
 
