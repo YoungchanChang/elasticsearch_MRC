@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Optional
+
 from pydantic import BaseModel
 
 @dataclass
@@ -16,8 +18,8 @@ class WikiItem(Domain):
 
 @dataclass
 class WikiQuestionItemDTO(Domain):
-    title: str
-    question: str
+    title: Optional[str]
+    question: Optional[str]
 
 
 class WikiQuestionItem(BaseModel):
