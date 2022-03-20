@@ -11,10 +11,10 @@ from app.application.elastic_service import ElasticService
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
-from app.domain.elastic_domain import get_knn_template, get_content_template
+from app.domain.elastic_domain import get_knn_template, get_content_template, get_title_template
 from app.infrastructure.api.wiki_repo import WikiContent
 
-from app.infrastructure.database.elastic_repository import ElasticTitle, ElasticContent
+import app.infrastructure.database.elastic_repository as el_repo
 
 se = Pororo(task="sentence_embedding", lang="ko")
 mrc = Pororo(task="mrc", lang="ko")
@@ -101,6 +101,18 @@ def get_encoded_knn_template(question: str) -> dict:
 
     return knn_template
 
+def get_encoded_title_template(question: str) -> dict:
+    """
+    컨텐츠 벡터값 인코딩을 위한 템플릿
+    :param title:
+    :param question:
+    :return:
+    """
+    question_vector = encode_vectors(question=question)
+
+    content_template = get_title_template(question, question_vector)
+
+    return content_template
 
 def get_encoded_content_template(title: str, question: str) -> dict:
     """
@@ -132,8 +144,8 @@ class MRC:
         return content
 
     def get_elastic_content(self, question: str):
-        content_repository = ElasticContent()
-        title_repository = ElasticTitle()
+        content_repository = el_repo.ElasticContent()
+        title_repository = el_repo.ElasticTitle()
         elastic_service = ElasticService(title_repository, content_repository)
 
         elastic_content = elastic_service.get_content(question)
@@ -160,21 +172,27 @@ class MRC:
             best_proper_content = elastic_content[BEST_VALUE]
 
         else:
-            start_idx = 0
-            save_idx = None
-            for idx, split_item in enumerate(split_index_data):
-                if mrc_answer[MRC_INDEX][START_IDX] > start_idx and mrc_answer[MRC_INDEX][START_IDX] < split_item[START_IDX]:
-                    save_idx = idx
+
+            for i in mrc_sentence.split(SENTENCE_SPLIT_SYMBOL):
+                if len(mrc_answer[0]) >= 3 and mrc_answer[0] in i:
+                    best_proper_content = i
                     break
-                start_idx = split_item[START_IDX]
+            else:
+                start_idx = 0
+                save_idx = None
+                for idx, split_item in enumerate(split_index_data):
+                    if mrc_answer[MRC_INDEX][START_IDX] > start_idx and mrc_answer[MRC_INDEX][START_IDX] < split_item[START_IDX]:
+                        save_idx = idx
+                        break
+                    start_idx = split_item[START_IDX]
 
-                if mrc_answer[MRC_INDEX][START_IDX] >= split_item[START_IDX]:
-                    save_idx = idx + 1
+                    if mrc_answer[MRC_INDEX][START_IDX] >= split_item[START_IDX]:
+                        save_idx = idx + 1
 
-            best_proper_content = mrc_sentence.split(SENTENCE_SPLIT_SYMBOL)[save_idx]
+                best_proper_content = mrc_sentence.split(SENTENCE_SPLIT_SYMBOL)[save_idx]
 
-            if save_idx is None:
-                best_proper_content = elastic_content[BEST_VALUE]
+                if save_idx is None:
+                    best_proper_content = elastic_content[BEST_VALUE]
 
         return mrc_answer[MRC_ANSWER], best_proper_content
 
