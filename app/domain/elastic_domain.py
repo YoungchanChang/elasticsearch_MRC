@@ -2,7 +2,7 @@ from typing import List
 
 K_NEAR_NUM = 10
 NUM_CANDIDATE = 12
-CONTENT_LIMIT = 5
+CONTENT_LIMIT = 3
 
 
 def get_knn_template(k: List):
@@ -36,7 +36,7 @@ def get_title_template(query: str, k: List):
                                 "match": {
                                     "title": {
                                         "query": query,
-                                        "boost": 5
+                                        "boost": 10
                                     }
                                 }
                             },
@@ -65,7 +65,7 @@ def get_title_template(query: str, k: List):
                 },
               },
             "script": {
-                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
+                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') * 10)",
                 "params": {
                     "queryVector": k
                 }
@@ -118,7 +118,7 @@ def get_content_template(title: str, query: str, k: List):
                 },
               },
             "script": {
-                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
+                "source": "(_score/10) * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
                 "params": {
                     "queryVector": k
                 }
