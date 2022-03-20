@@ -2,44 +2,62 @@ from typing import List
 
 K_NEAR_NUM = 10
 NUM_CANDIDATE = 12
-ONLY_ONE_TITLE = 1
+CONTENT_LIMIT = 5
 
 
 def get_knn_template(k: List):
 
     elastic_search_field = {
           "knn": {
-            "field": "content-vector",
+            "field": "title-vector",
             "query_vector": k,
             "k": K_NEAR_NUM,
             "num_candidates": NUM_CANDIDATE
           },
           "fields": [
-            "content-vector",
-            "content"
+            "title",
+            "first_header",
+            "second_header",
           ]
         }
 
     return elastic_search_field
 
 
-def get_es_title_template(keyword: str):
+def get_content_template(title: str, query: str, k: List):
     body = {
-        "size": ONLY_ONE_TITLE,
-        "_source": ["title"],
+        "size": CONTENT_LIMIT,
+        "_source": ["title", "first_header", "second_header", "content"],
         "query": {
-            "bool": {
-                "must": [
-                    {
-                        "match": {
-                            "title": {
-                                "query": keyword,
-                            }
-                        }
-                    },
+            "script_score": {
+                "query": {
+                    "bool": {
+                        "filter": {
+                            "match": {
+                                "title": title,
+                            },
 
-                ]
-            }
+                        },
+                        "should":[
+                            {
+                                "match": {
+                                    "content": {
+                                        "query": query,
+                                    }
+                                }
+                            },
+                        ],
+                },
+              },
+            "script": {
+                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
+                "params": {
+                    "queryVector": k
+                }
+            },
+
+            },
+
         },
         "explain": "true"
     }
