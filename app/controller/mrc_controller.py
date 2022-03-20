@@ -165,13 +165,10 @@ class MRC:
 
         split_index_data = [(m.start(), m.end()) for m in re.finditer(SENTENCE_SPLIT_SYMBOL, mrc_sentence)]
 
-        if len(split_index_data) == ONLY_ONE_CONTENT:
-            best_proper_content = elastic_content[BEST_VALUE]
+        best_proper_content = elastic_content[BEST_VALUE]
 
-        elif mrc_answer[MRC_ANSWER] == MRC_NOT_FOUND:
-            best_proper_content = elastic_content[BEST_VALUE]
 
-        else:
+        if (len(split_index_data) > ONLY_ONE_CONTENT) and (mrc_answer[MRC_ANSWER] != MRC_NOT_FOUND):
 
             tmp_answer = []
             for i in mrc_sentence.split(SENTENCE_SPLIT_SYMBOL):
