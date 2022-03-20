@@ -37,16 +37,7 @@ class ElasticContent(AbstractRepository):
 class ElasticTitle(AbstractFinder):
 
     def find_one(self, model: WikiQuestionItemDTO):
-        result = requests.get("https://localhost:9200/wiki-vector-index/_knn_search",
-                            json=mrc_con.get_encoded_knn_template(model.question),
-                            headers=json_header,
-                            auth=HTTPBasicAuth("elastic", "6bXz4stf_*78WWZgiDPH"),
-                            verify=False)
-
-        resp = (json.loads(result.text))
-
-        if len(resp['hits']['hits']) == 0:
-            raise WikiDataException("적절한 타이틀 없음")
-
-        return  resp['hits']['hits'][0]["_source"]['title']
+        result = es.search(index=elastic_vector_index, body=mrc_con.get_encoded_title_template(model.question))
+        resp = result.body
+        return resp['hits']['hits'][0]["_source"]['title']
 
