@@ -1,3 +1,5 @@
+from typing import List
+
 import mecab
 
 from app.application.repo_interface import AbstractRepository, AbstractFinder
@@ -23,6 +25,11 @@ def filter_necessary(question: str) -> str:
             answer.append(i[0])
 
     return " ".join(answer)
+
+
+def get_pos_idx(question: str) -> List:
+    mecab_parsed = mecab.parse(question)
+    return [(x[0], x[1].pos) for x in mecab_parsed]
 
 
 class ElasticService:
