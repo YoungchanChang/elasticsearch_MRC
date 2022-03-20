@@ -60,13 +60,31 @@ def set_wiki_index(elastic_index: str):
                     "similarity": "cosine"
                 },
                 "title": {
-                    "type": "keyword",
+                    "type": "text",
+                    "analyzer": "nori_analyzer",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword"
+                        }
+                    },
                 },
                 "first_header": {
-                    "type": "keyword"
+                    "type": "text",
+                    "analyzer": "nori_analyzer",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword"
+                        }
+                    },
                 },
                 "second_header": {
-                    "type": "keyword"
+                    "type": "text",
+                    "analyzer": "nori_analyzer",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword"
+                        }
+                    },
 
                 },
                 "content": {
@@ -89,5 +107,5 @@ def exists_index():
 
 if __name__ == '__main__':
 
-    exists_index(elastic_vector_index)
+    set_wiki_index(elastic_vector_index)
 
