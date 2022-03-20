@@ -47,12 +47,6 @@ def set_wiki_index(elastic_index: str):
         },
         "mappings": {
             "properties": {
-                "title-vector": {
-                    "type": "dense_vector",
-                    "dims": 768,
-                    "index": True,
-                    "similarity": "cosine"
-                },
                 "content-vector": {
                     "type": "dense_vector",
                     "dims": 768,
