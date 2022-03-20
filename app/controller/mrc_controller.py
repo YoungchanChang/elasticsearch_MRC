@@ -194,7 +194,7 @@ class MRC:
                     best_proper_content = i
                     tmp_answer.append(i)
 
-            if len(tmp_answer) >= 2:
+            if len(tmp_answer) > 2:
                 start_idx = 0
                 save_idx = None
                 for idx, split_item in enumerate(split_index_data):
