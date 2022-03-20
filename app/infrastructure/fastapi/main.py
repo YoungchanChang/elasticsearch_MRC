@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from app.infrastructure.fastapi import mrc_api
-from scripts.elastic_index import exists_index
+from scripts.elastic_vector_index import exists_index
 
 app = FastAPI()
 
