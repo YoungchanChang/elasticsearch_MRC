@@ -7,7 +7,7 @@ from pororo import Pororo
 from typing import Generator
 from kss import split_sentences
 
-from app.application.elastic_service import ElasticService
+from app.application.elastic_service import ElasticService, get_pos_idx
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
@@ -66,19 +66,37 @@ class WikiControl:
                                        content=page_item_one_sentence)
 
     def gen_vector_data(self, title):
-
+        from collections import defaultdict
+        d = defaultdict(list)
         for wiki_item in self.get_wiki_data(title):
-            yield {
-                "_index": elastic_vector_index,
-                "_source": {
-                        "title-vector": np.array(encode_vectors(wiki_item.title + ". " + wiki_item.first_header + ".")).tolist(),
-                        "content-vector": np.array(encode_vectors(wiki_item.content)).tolist(),
-                        "title": wiki_item.title,
-                        "first_header": wiki_item.first_header,
-                        "second_header": wiki_item.second_header,
-                        "content": wiki_item.content
+            dic_key = wiki_item.title + "@@@" + wiki_item.first_header + "@@@" + wiki_item.second_header
+            d[dic_key].append(wiki_item.content)
+
+
+        for d_key in d.keys():
+            d_list = d[d_key]
+            for idx, d_item in enumerate(d_list):
+                item_pos = get_pos_idx(d_item)
+
+                if item_pos[0][1] in ["NP", 'MM', 'MAJ']:
+                    d_item = d_list[idx-1] + " " + d_item
+
+                elif item_pos[0][0] in ['이후', '한편']:
+                    d_item = d_list[idx - 1] + " " +d_item
+
+                title, first_header, second_header = d_key.split("@@@")
+
+                content_vector = encode_vectors(d_item)
+                yield {
+                    "_index": elastic_vector_index,
+                    "_source": {
+                            "content-vector": content_vector,
+                            "title": title,
+                            "first_header": first_header,
+                            "second_header": second_header,
+                            "content": d_item
+                        }
                     }
-                }
 
 
 
