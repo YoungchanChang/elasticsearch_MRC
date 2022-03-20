@@ -173,11 +173,13 @@ class MRC:
 
         else:
 
+            tmp_answer = []
             for i in mrc_sentence.split(SENTENCE_SPLIT_SYMBOL):
-                if len(mrc_answer[0]) >= 3 and mrc_answer[0] in i:
+                if len(mrc_answer[0]) >= 1 and mrc_answer[0] in i:
                     best_proper_content = i
-                    break
-            else:
+                    tmp_answer.append(i)
+
+            if len(tmp_answer) >= 2:
                 start_idx = 0
                 save_idx = None
                 for idx, split_item in enumerate(split_index_data):
