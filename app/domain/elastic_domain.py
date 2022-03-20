@@ -23,6 +23,60 @@ def get_knn_template(k: List):
 
     return elastic_search_field
 
+def get_title_template(query: str, k: List):
+    body = {
+        "size": CONTENT_LIMIT,
+        "_source": ["title", "first_header", "second_header", "content"],
+        "query": {
+            "script_score": {
+                "query": {
+                    "bool": {
+                        "should":[
+                            {
+                                "match": {
+                                    "title": {
+                                        "query": query,
+                                        "boost": 5
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    "first_header": {
+                                        "query": query,
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    "second_header": {
+                                        "query": query,
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    "content": {
+                                        "query": query,
+                                    }
+                                }
+                            },
+                        ],
+                },
+              },
+            "script": {
+                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
+                "params": {
+                    "queryVector": k
+                }
+            },
+
+            },
+
+        },
+        "explain": "true"
+    }
+    return body
 
 def get_content_template(title: str, query: str, k: List):
     body = {
@@ -34,11 +88,25 @@ def get_content_template(title: str, query: str, k: List):
                     "bool": {
                         "filter": {
                             "match": {
-                                "title": title,
+                                "title.keyword": title,
                             },
 
                         },
                         "should":[
+                            {
+                                "match": {
+                                    "first_header": {
+                                        "query": query,
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    "second_header": {
+                                        "query": query,
+                                    }
+                                }
+                            },
                             {
                                 "match": {
                                     "content": {
