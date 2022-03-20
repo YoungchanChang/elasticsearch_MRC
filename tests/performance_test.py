@@ -30,7 +30,7 @@ if __name__ == "__main__":
             mrc_answer, best_proper_content = mrc.filter_mrc_content(sample_item)
             print(mrc_answer, best_proper_content)
 
-            answer.append([sample_item,str(mrc_answer),str(best_proper_content)])
+            answer.append([sample_item,str(mrc_answer) + " ",str(best_proper_content)])
 
 
     with open('test_data/answer.csv', 'a', encoding='utf-8-sig', newline='') as writer_csv:
