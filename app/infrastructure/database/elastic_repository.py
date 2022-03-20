@@ -1,44 +1,52 @@
-from app.application.repo_interface import AbstractRepository
-from app.config.settings import elastic_index
-from app.controller.mrc_control import gen_mrc_data
-from app.domain.custome_error import WikiDataException
-from app.domain.domain import WikiQuestionItemDTO
-from app.domain.elastic_domain import get_es_title_template
-from app.infrastructure.database.elastic_conn import es
+import json
+import requests
+from requests.auth import HTTPBasicAuth
 from elasticsearch import helpers
 
 
-class WikiSearch(AbstractRepository):
+from app.application.repo_interface import AbstractRepository, AbstractFinder
+import app.controller.mrc_controller as mrc_con
+from app.domain.custome_error import WikiDataException
+from app.domain.domain import WikiQuestionItemDTO
+from app.infrastructure.database.elastic_conn import es
+from app.config.settings import *
+
+json_header = {'Content-Type':'application/json'}
+
+
+class ElasticContent(AbstractRepository):
 
     def create(self, model: WikiQuestionItemDTO):
+
         """
         위키피디아에서 검색 후 데이터 생성
         :param model: 위키피디아 주제, 질문 데이터
         :return:
         """
-        result = helpers.bulk(es, gen_mrc_data(model.title))
+        wiki_control = mrc_con.WikiControl()
+        result = helpers.bulk(es, wiki_control.gen_vector_data(model.title))
         return result
 
     def find_one(self, model: WikiQuestionItemDTO):
 
-        """
-        제목 찾고 없으면 위키피디아에서 검색 후 생성
-        :param model: 위키피디아 주제, 질문 데이터
-        :return: 성공 여부
-        """
-
-        result = es.search(index=elastic_index, body=get_es_title_template(model.title))
-        hit_len = len(result.body['hits']['hits'])
-        if hit_len == 0:
-            # 없으면 생성, 못 찾으면 에러 반환
-            self.create(model)
-        return result
+        result = es.search(index=elastic_vector_index, body=mrc_con.get_encoded_content_template(model.title, model.question))
+        resp = result.body
+        return resp['hits']['hits']
 
 
-if __name__ == "__main__":
-    wiki_question = WikiQuestionItemDTO(title="조선ㅇㅇㅇ", question="조선 최고 학당이 어디야?")
-    wiki_search = WikiSearch()
-    wiki_result = wiki_search.find_one(wiki_question)
-    wiki_final_result = wiki_result.body['hits']['hits']
-    print(wiki_result)
-    print(wiki_final_result)
+class ElasticTitle(AbstractFinder):
+
+    def find_one(self, model: WikiQuestionItemDTO):
+        result = requests.get("https://localhost:9200/wiki-vector-index/_knn_search",
+                            json=mrc_con.get_encoded_knn_template(model.question),
+                            headers=json_header,
+                            auth=HTTPBasicAuth("elastic", "6bXz4stf_*78WWZgiDPH"),
+                            verify=False)
+
+        resp = (json.loads(result.text))
+
+        if len(resp['hits']['hits']) == 0:
+            raise WikiDataException("적절한 타이틀 없음")
+
+        return  resp['hits']['hits'][0]["_source"]['title']
+
