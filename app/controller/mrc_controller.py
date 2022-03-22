@@ -11,7 +11,7 @@ from app.application.elastic_service import ElasticService, get_pos_idx
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
-from app.domain.elastic_domain import get_knn_template, get_content_template, get_title_template
+from app.domain.elastic_domain import get_content_template, get_title_template
 from app.infrastructure.api.wiki_repo import WikiContent
 
 import app.infrastructure.database.elastic_repository as el_repo
@@ -99,25 +99,10 @@ class WikiControl:
                     }
 
 
-
 def encode_vectors(question: str) -> List:
     se_val = se(" ".join(question))
     return np.array(se_val).tolist()
 
-
-def get_encoded_knn_template(question: str) -> dict:
-
-    """
-    knn 알고리즘을 위한 템플릿
-    :param question:
-    :return:
-    """
-
-    question_vector = encode_vectors(question=question)
-
-    knn_template = get_knn_template(question_vector)
-
-    return knn_template
 
 def get_encoded_title_template(question: str) -> dict:
     """
@@ -131,6 +116,7 @@ def get_encoded_title_template(question: str) -> dict:
     content_template = get_title_template(question, question_vector)
 
     return content_template
+
 
 def get_encoded_content_template(title: str, question: str) -> dict:
     """
