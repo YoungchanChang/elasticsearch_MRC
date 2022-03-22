@@ -4,27 +4,8 @@ K_NEAR_NUM = 10
 NUM_CANDIDATE = 12
 CONTENT_LIMIT = 3
 
-
-def get_knn_template(k: List):
-
-    elastic_search_field = {
-          "knn": {
-            "field": "title-vector",
-            "query_vector": k,
-            "k": K_NEAR_NUM,
-            "num_candidates": NUM_CANDIDATE
-          },
-          "fields": [
-            "title",
-            "first_header",
-            "second_header",
-          ]
-        }
-
-    return elastic_search_field
-
-
 elastic_script_formula = "Math.log10(_score + 1) * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)"
+
 
 def get_title_template(query: str, k: List):
     body = {
