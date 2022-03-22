@@ -23,6 +23,9 @@ def get_knn_template(k: List):
 
     return elastic_search_field
 
+
+elastic_script_formula = "Math.log10(_score + 1) * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)"
+
 def get_title_template(query: str, k: List):
     body = {
         "size": CONTENT_LIMIT,
@@ -65,7 +68,7 @@ def get_title_template(query: str, k: List):
                 },
               },
             "script": {
-                "source": "_score * (cosineSimilarity(params.queryVector, 'content-vector') * 10)",
+                "source": elastic_script_formula,
                 "params": {
                     "queryVector": k
                 }
@@ -118,7 +121,7 @@ def get_content_template(title: str, query: str, k: List):
                 },
               },
             "script": {
-                "source": "(_score/10) * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)",
+                "source": elastic_script_formula,
                 "params": {
                     "queryVector": k
                 }
