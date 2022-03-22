@@ -1,35 +1,6 @@
-from typing import List
-
-import mecab
-
 from app.application.repo_interface import AbstractRepository, AbstractFinder
+from app.application.mecab_service import filter_necessary
 from app.domain.domain import WikiQuestionItemDTO
-
-mecab = mecab.MeCab()
-
-
-mecab_pos_allow = [
-                "NNG", "NNP", "NR",
-                "VV", "VA", "VX",
-                "XPN", "XSN", "XSV", "XSA", "XR",
-                "MM",
-                "SL", "SH", "SN",]
-
-
-def filter_necessary(question: str) -> str:
-    mecab_parsed = mecab.parse(question)
-    answer = []
-    for i in mecab_parsed:
-        i_post = i[1].pos.split("+")
-        if any(elem in i_post for elem in mecab_pos_allow):
-            answer.append(i[0])
-
-    return " ".join(answer)
-
-
-def get_pos_idx(question: str) -> List:
-    mecab_parsed = mecab.parse(question)
-    return [(x[0], x[1].pos) for x in mecab_parsed]
 
 
 class ElasticService:
