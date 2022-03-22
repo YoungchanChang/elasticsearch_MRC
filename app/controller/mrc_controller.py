@@ -7,7 +7,8 @@ from pororo import Pororo
 from typing import Generator
 from kss import split_sentences
 
-from app.application.elastic_service import ElasticService, get_pos_idx
+from app.application.elastic_service import ElasticService
+from app.application.mecab_service import get_pos_idx, MecabInflectParser
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
@@ -85,8 +86,12 @@ class WikiControl:
                     d_item = d_list[idx - 1] + " " +d_item
 
                 title, first_header, second_header = d_key.split("@@@")
+                header = title + " " + title + " " + title + " " + first_header + " " + first_header + " " + second_header
+                mecab_inflect_result = [x[0] for x in list(MecabInflectParser(header + d_item).gen_mecab_compound_token_feature())]
+                extracted_data = " ".join(mecab_inflect_result)
+                print(extracted_data)
+                content_vector = encode_vectors(extracted_data)
 
-                content_vector = encode_vectors(d_item)
                 yield {
                     "_index": elastic_vector_index,
                     "_source": {
