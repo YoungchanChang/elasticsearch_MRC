@@ -16,31 +16,56 @@ def set_wiki_index(elastic_index: str):
                             "type": "custom",
                             "tokenizer": "nori_tokenizer",
                             "filter": [
-                                "part_of_speech_stop_sp",
                             ]
                         },
-                        "nori_elastic_analyzer": {
+                        "nori_noun_analyzer": {
                             "type": "custom",
                             "tokenizer": "nori_tokenizer",
                             "filter": [
-                                "part_of_speech_stop_sp",
+                                "part_of_speech_noun",
+                            ]
+                        },
+                        "nori_verb_analyzer": {
+                            "type": "custom",
+                            "tokenizer": "nori_tokenizer",
+                            "filter": [
+                                "part_of_speech_verb",
                             ]
                         }
                     },
+                    "tokenizer": {
+                        "wiki_dict_tokenizer": {
+                            "type": "nori_tokenizer",
+                        },
+                    },
                     # 동의어 추가 및 제거할 단어
                     "filter": {
-                        "part_of_speech_stop_sp": {
+                        "part_of_speech_noun": {
                             "type": "nori_part_of_speech",
                             "stoptags": [
-                                "E",
+                                "NP", "NNB", # 대명사, 의존명사
+                                "SF", # 마침표
+                                "E", "J", "IC", "MAG", "MAJ", "NA", "SC",
+                                "SE", "SH", "SP", "SSC", "SSO", "UNA",
+                                "VCP", "VCN", "VSV", "XPN", "XSA", "XSV", "SY", "VA", "VV", "VX"
+                            ]
+                        },
+                        "part_of_speech_verb": {
+                            "type": "nori_part_of_speech",
+                            "stoptags": [
+                                "NNG", "NNP", "NNB", "NNBC", "NR", "NP",
+                                "VX", "VCP", "VCN",
+                                "MAG", "MAJ", "MM",
                                 "IC",
                                 "J",
-                                "MAG", "MAJ", "MM",
-                                "SP", "SSC", "SSO", "SC", "SE",
+                                "E",
+                                "VX", "VCP", "VCN",
+                                "SP", "SSC", "SSO", "SC", "SE", "SH", "SN",
                                 "XPN", "XSA", "XSN", "XSV",
                                 "UNA", "NA", "VSV"
                             ]
                         }
+
                     }
                 }
             }
@@ -83,7 +108,12 @@ def set_wiki_index(elastic_index: str):
                 },
                 "content": {
                     "type": "text",
-                    "analyzer": "nori_analyzer",
+                    "analyzer": "nori_noun_analyzer",
+                    "fielddata": True
+                },
+                "content_verb": {
+                    "type": "text",
+                    "analyzer": "nori_verb_analyzer",
                     "fielddata": True
                 }
             }
