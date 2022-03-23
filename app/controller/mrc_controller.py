@@ -8,7 +8,7 @@ from typing import Generator
 from kss import split_sentences
 
 from app.application.elastic_service import ElasticService
-from app.application.mecab_service import get_pos_idx, MecabInflectParser
+from app.application.mecab_service import get_pos_idx, MecabInflectParser, filter_necessary
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
@@ -143,9 +143,9 @@ class MRC:
         vector_content = []
         for idx, hit in enumerate(elastic_content):
             if hit['_score'] > 1:
-                content.append(hit["_source"]['content'])
+                content.append(hit["_source"])
             else:
-                vector_content.append(hit["_source"]['content'])
+                vector_content.append(hit["_source"])
 
         if len(content) == 0:
             content.extend(vector_content)
@@ -164,11 +164,13 @@ class MRC:
 
     def filter_mrc_content(self, question: str):
         elastic_content = self.get_elastic_content(question=question)
+        title = elastic_content[BEST_VALUE]["title"]
+        elastic_content = [x["content"] for x in elastic_content]
 
         mrc_sentence = f"{SENTENCE_SPLIT_SYMBOL}".join(elastic_content)
 
         mrc_answer = mrc(
-           question,
+           filter_necessary(question),
            mrc_sentence
         )
 
@@ -202,7 +204,7 @@ class MRC:
                 if save_idx is None:
                     best_proper_content = elastic_content[BEST_VALUE]
 
-        return mrc_answer[MRC_ANSWER], best_proper_content
+        return mrc_answer[MRC_ANSWER], best_proper_content, title
 
 
 if __name__ == "__main__":
