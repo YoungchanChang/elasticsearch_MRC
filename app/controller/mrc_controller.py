@@ -8,7 +8,7 @@ from typing import Generator
 from kss import split_sentences
 
 from app.application.elastic_service import ElasticService
-from app.application.mecab_service import get_pos_idx, MecabInflectParser, filter_necessary
+from app.application.mecab_service import get_pos_idx, MecabInflectParser, filter_necessary, NOUN, VERB
 from app.config.settings import *
 from app.application.wikipedia_service import WikipediaService
 from app.domain.domain import WikiItem
@@ -70,6 +70,9 @@ class WikiControl:
         from collections import defaultdict
         d = defaultdict(list)
         for wiki_item in self.get_wiki_data(title):
+
+
+
             dic_key = wiki_item.title + "@@@" + wiki_item.first_header + "@@@" + wiki_item.second_header
             d[dic_key].append(wiki_item.content)
 
@@ -79,18 +82,25 @@ class WikiControl:
             for idx, d_item in enumerate(d_list):
                 item_pos = get_pos_idx(d_item)
 
+                # 이전 문장 고려
                 if item_pos[0][1] in ["NP", 'MM', 'MAJ']:
                     d_item = d_list[idx-1] + " " + d_item
 
                 elif item_pos[0][0] in ['이후', '한편']:
                     d_item = d_list[idx - 1] + " " +d_item
 
+                # 타이틀, 헤더 나눔
                 title, first_header, second_header = d_key.split("@@@")
                 header = title + " " + title + " " + title + " " + first_header + " " + first_header + " " + second_header
                 mecab_inflect_result = [x[0] for x in list(MecabInflectParser(header + d_item).gen_mecab_compound_token_feature())]
                 extracted_data = " ".join(mecab_inflect_result)
                 print(extracted_data)
                 content_vector = encode_vectors(extracted_data)
+
+                # noun, verb 나눠서 저장
+                mecab_tokens = [list(MecabInflectParser(d_item).gen_mecab_compound_token_feature())]
+                mecab_noun_tokens = [x[0] for x in mecab_tokens if x[1] == NOUN]
+                mecab_verb_tokens = [x[0] for x in mecab_tokens if x[1] == VERB]
 
                 yield {
                     "_index": elastic_vector_index,
@@ -99,7 +109,9 @@ class WikiControl:
                             "title": title,
                             "first_header": first_header,
                             "second_header": second_header,
-                            "content": d_item
+                            "content": d_item,
+                            "content_noun": mecab_noun_tokens,
+                            "content_verb": mecab_verb_tokens
                         }
                     }
 
