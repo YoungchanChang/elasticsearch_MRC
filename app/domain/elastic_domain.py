@@ -3,8 +3,7 @@ from typing import List
 K_NEAR_NUM = 10
 NUM_CANDIDATE = 12
 CONTENT_LIMIT = 3
-
-elastic_script_formula = "Math.log10(_score + 1) * (cosineSimilarity(params.queryVector, 'content-vector') + 1.0)"
+elastic_script_formula = "(Math.log10(_score + 1)*2) + (cosineSimilarity(params.queryVector, 'content-vector') + 2.0)"
 
 
 def get_title_template(query: str, k: List):
@@ -45,11 +44,18 @@ def get_title_template(query: str, k: List):
                                     }
                                 }
                             },
+                            {
+                                "match": {
+                                    "content_verb": {
+                                        "query": query,
+                                    }
+                                }
+                            },
                         ],
                 },
               },
             "script": {
-                "source": elastic_script_formula,
+                "source": "_score",
                 "params": {
                     "queryVector": k
                 }
