@@ -107,14 +107,10 @@ def set_wiki_index(elastic_index: str):
 
                 },
                 "content": {
-                    "type": "text",
-                    "analyzer": "nori_noun_analyzer",
-                    "fielddata": True
+                    "type": "term"
                 },
                 "content_verb": {
-                    "type": "text",
-                    "analyzer": "nori_verb_analyzer",
-                    "fielddata": True
+                    "type": "term"
                 }
             }
         }
