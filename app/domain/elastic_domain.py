@@ -41,6 +41,7 @@ def get_title_template(query: str, k: List):
                                 "match": {
                                     "content": {
                                         "query": query,
+                                        "boost": 2
                                     }
                                 }
                             },
@@ -100,6 +101,14 @@ def get_content_template(title: str, query: str, k: List):
                             {
                                 "match": {
                                     "content": {
+                                        "query": query,
+                                        "boost": 2
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    "content_verb": {
                                         "query": query,
                                     }
                                 }
