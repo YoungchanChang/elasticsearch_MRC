@@ -5,12 +5,33 @@ from python_mecab_ner.mecab_parser import MecabParser
 
 mecab = mecab.MeCab()
 
+NOUN = "Noun"
+VERB = "Verb"
+
+mecab_all_pos = ["NNG", "NNP", "NNB", "NNBC", "NR", "NP",
+                   "VV", "VA", "VX", "VCP", "VCN",
+                   "MM", "MAG", "MAJ",
+                   "IC",
+                   "JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JX", "JC",
+                   "EP", "EF", "EC", "ETN", "ETM",
+                   "XPN", "XSN", "XSV", "XSA", "XR",
+                   "SF", "SE", "SSO", "SSC", "SC", "SY", "SL", "SH", "SN"]
+
 mecab_pos_allow = [
                 "NNG", "NNP", "NR",
                 "VV", "VA", "VX",
                 "XPN", "XR",
                 "MM",
                 "SL", "SH", "SN",]
+
+mecab_noun_pos = ["NNG", "NNP",
+                  "MM",
+                  "XR",
+                  "SL", "SH", "SN" 
+                  "UNKOWN"]
+
+
+mecab_verb_pos = ["VV", "VA"]
 
 
 stop_words = ['하']
@@ -39,10 +60,11 @@ class MecabInflectParser(MecabParser):
         for idx, x in enumerate(list(self.tokenize_mecab_compound())):
             word, pos_tag, compound_include_item = x
 
-            if (pos_tag in mecab_pos_allow) and (word not in stop_words):
-                x = (compound_include_item.word, pos_tag)
-                yield x
+            if (pos_tag in mecab_noun_pos):
+                yield compound_include_item.word, NOUN
 
+            if (pos_tag in mecab_verb_pos) and (word not in stop_words):
+                yield word, VERB
 
 def filter_necessary(question: str) -> str:
     mecab_parsed = mecab.parse(question)
@@ -61,5 +83,12 @@ def get_pos_idx(question: str) -> List:
 
 
 if __name__ == "__main__":
-    for i in list(MecabInflectParser("밥을 정말 맛있게 먹었다").gen_mecab_compound_token_feature()):
+    d_item = "잡혔었었다."
+    for i in list(MecabInflectParser("김보당은 정중부에게 붙잡혔다.").gen_mecab_compound_token_feature()):
         print(i)
+    mecab_tokens = list(MecabInflectParser(d_item).gen_mecab_compound_token_feature())
+    print(mecab_tokens)
+    mecab_noun_tokens = [x[0] for x in mecab_tokens if x[1] == NOUN]
+    print(mecab_noun_tokens)
+    mecab_verb_tokens = [x[0] for x in mecab_tokens if x[1] == VERB]
+    print(mecab_verb_tokens)
