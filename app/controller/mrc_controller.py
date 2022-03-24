@@ -98,7 +98,7 @@ class WikiControl:
                 content_vector = encode_vectors(extracted_data)
 
                 # noun, verb 나눠서 저장
-                mecab_tokens = [list(MecabInflectParser(d_item).gen_mecab_compound_token_feature())]
+                mecab_tokens = list(MecabInflectParser(d_item).gen_mecab_compound_token_feature())
                 mecab_noun_tokens = [x[0] for x in mecab_tokens if x[1] == NOUN]
                 mecab_verb_tokens = [x[0] for x in mecab_tokens if x[1] == VERB]
 
