@@ -72,7 +72,7 @@ def set_wiki_index(elastic_index: str):
         },
         "mappings": {
             "properties": {
-                "content-vector": {
+                "content_vector": {
                     "type": "dense_vector",
                     "dims": 768,
                     "index": True,
@@ -111,10 +111,10 @@ def set_wiki_index(elastic_index: str):
                     "analyzer": "nori_noun_analyzer",
                     "fielddata": True
                 },
-                "content_noun": {
+                "content_noun_search": {
                     "type": "keyword"
                 },
-                "content_verb": {
+                "content_verb_search": {
                     "type": "keyword"
                 }
             }
