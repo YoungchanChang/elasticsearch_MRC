@@ -12,9 +12,20 @@
 
 # Details
 
-- 엘라스틱서치 검색 시 키워드 점수에 문장 유사도 점수 합산
-- 나온 문장들 중 MRC를 이용하여 질의 문에 대해 답이 있는 곳 추출
-- 추출한 단어가 있는 문장 재추출
+- 엘라스틱서치 검색시 키워드, BM25, 코사인 유사도 기준으로 검색
+- 엘라스틱서치 검색 결과와 질의문을 MRC에 삽입 후 나온 결과를 정답 후보 문장으로 추출 
+
+# Test Result
+
+- 결과 : 의미 기반을 추가한 경우 약 7% 향상
+- 테스트 데이터 : 위키피디아에서 고조선, 조선, 고구려, 고려
+- 키워드 기반 검색 + 코사인 유사도를 통해 추출한 값들 중 MRC에 매칭되는 문장 추출 
+
+# Test Result Detail
+
+- 하단 URL 참조
+
+https://docs.google.com/spreadsheets/d/1rEZSJL4-MJ4ADrOcsktuSw6RsLpAXmDxfizNGBKzDwg/edit#gid=0
 
 # Installation
 
@@ -35,25 +46,6 @@ python scripts/elastic_vector_index.py
 ```
 python main.py
 ```
-
-
-# example
-
-- 사용하지 않았을 경우에 비해 약 7% 향상
-
-- 테스트 시나리오 : 위키피디아에서 고조선, 조선, 고구려, 고려의 내용을 넣은 뒤 키워득 기반 검색과 키워드 및 의미 기반 검색 결과 비교 
-
-```
-https://docs.google.com/spreadsheets/d/1rEZSJL4-MJ4ADrOcsktuSw6RsLpAXmDxfizNGBKzDwg/edit#gid=0`
-```
-
-
-<img width="1456" alt="Screen Shot 2022-03-17 at 2 55 46 PM" src="https://user-images.githubusercontent.com/40015958/158746631-a07b9655-0de6-4127-bb3f-6669087abe2d.png">
-
-
-- return
-
-<img width="1534" alt="Screen Shot 2022-03-17 at 2 55 52 PM" src="https://user-images.githubusercontent.com/40015958/158746646-e8aef997-99a7-4c5a-aec3-07e7fcbd28dc.png">
 
 # License
 
