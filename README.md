@@ -1,7 +1,12 @@
 # elasticsearch_MRC
 
-엘라스틱서치 `cosineSimilarity` 기능과 MRC를 사용하여 질의문에 대해 문장 단위 검색
+엘라스틱서치에서 문장 단위 검색
+- 엘라스틱서치 키워드 기반 검색
+- 엘라스틱서치 BM25 기반 검색
+- 엘라스틱서치 코사인 유사도 기반 검색
+- MRC 활용하여 엘라스틱 서치 검색 결과 필터링
 
+# Required
 - 엘라스틱서치 7.9.1 이상 설치
 - app/infrastructure/database/http_ca.crt 변경 필수(ref : https://chatbottalk.tistory.com/244)
 
