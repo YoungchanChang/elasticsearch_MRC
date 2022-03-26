@@ -3,6 +3,7 @@ import numpy as np
 
 from app.application.interfaces.nlp import AbstractNLP
 from app.application.service.elastic_service import ElasticService
+from app.controller.elastic_controller import ElasticParsingResult
 from app.domain.entity import MrcDomain
 from pororo import Pororo
 
@@ -44,20 +45,13 @@ class PororoMecab(AbstractNLP):
     #
     #     return filtered_elastic_content
 
-MRC_TOKEN_VECTOR_SENTENCE_LIMIT = 2
-MRC_TOKEN_KEYWORD_SENTENCE_LIMIT = 3
-
-KEYWORD_LENGTH = 1
-VECTOR_LENGTH = 2
 BEST_VALUE = 0
 MRC_ANSWER = 0
 MRC_INDEX = 1
 MRC_NOT_FOUND = ''
-ONLY_ONE_CONTENT = 0
-START_IDX = 0
-END_IDX = 0
+END_IDX = 1
 
-SENTENCE_SPLIT_SYMBOL = " @@@ "
+SENTENCE_SPLIT_SYMBOL = "@"
 
 class ElasticMrc:
 
@@ -74,45 +68,62 @@ class ElasticMrc:
         elastic_content = self.es_service.search(sentence=question)
         return elastic_content
 
-    def get_mrc_content(self, elastic_content: List):
-        title = elastic_content[BEST_VALUE]["title"]
-        elastic_content = [x["content"] for x in elastic_content]
+    def extract_elastic_data(self, elastic_item: dict):
+        _score = elastic_item['_score']
+        _source = elastic_item['_source']
+        title, first_header, second_header, content = _source['title'], _source['first_header'], _source[
+            'second_header'], _source['content']
+        detail_items = elastic_item['_explanation']['details'][0]['details'][0]['details']
 
-        mrc_sentence = f"{SENTENCE_SPLIT_SYMBOL}".join(elastic_content)
-        mrc_domain = MrcDomain("test", "test")
-        mrc_answer = self.nlp_model.predict(mrc_domain)
+        noun_matches = []
+        verb_matches = []
+        content_match = []
+        for detail_item in detail_items:
+            if "content_noun_search" in detail_item['description']:
+                matching_noun = re.findall("content_noun_search:([가-힣|\w]+)", str(detail_item['description']))
+                noun_matches.extend(matching_noun)
+            elif "content_verb_search" in detail_item['description']:
+                matching_noun = re.findall("content_verb_search:([가-힣|\w]+)", str(detail_item['description']))
+                noun_matches.extend(matching_noun)
+            else:
+                content_matches = list(set(re.findall("content:([가-힣|\w]+)", str(detail_item['description']))))
+                content_match.extend(content_matches)
+        elastic_parsing_result = ElasticParsingResult(score=_score, title=title, first_header=first_header, second_header=second_header, content=content, content_noun_tokens=noun_matches, content_verb_tokens=verb_matches, content_match_tokens=content_match)
+        return elastic_parsing_result
 
-        split_index_data = [(m.start(), m.end()) for m in re.finditer(SENTENCE_SPLIT_SYMBOL, mrc_sentence)]
+    def get_mrc_content(self, question: str, elastic_contents: List):
 
-        best_proper_content = elastic_content[BEST_VALUE]
+        elastic_contents = [self.extract_elastic_data(x) for x in elastic_contents]
 
+        mrc_cand_list = []
+        for idx, items in enumerate(elastic_contents):
+            symbol_idx = ""
+            if len(elastic_contents) != (idx+1):
+                symbol_idx = SENTENCE_SPLIT_SYMBOL*(idx+1)
+            mrc_item = items.content + " " + symbol_idx + " "
+            item_length = len(mrc_item)
+            mrc_cand_list.append((mrc_item, items.content, item_length))
 
-        if (len(split_index_data) > ONLY_ONE_CONTENT) and (mrc_answer[MRC_ANSWER] != MRC_NOT_FOUND):
+        mrc_candidates = [x[BEST_VALUE] for x in mrc_cand_list]
+        mrc_sentence = f"".join(mrc_candidates)
+        mrc_domain = MrcDomain(question, mrc_sentence)
+        mrc_answer = self.nlp_model.predict(domain=mrc_domain)
 
-            tmp_answer = []
-            for i in mrc_sentence.split(SENTENCE_SPLIT_SYMBOL):
-                if len(mrc_answer[0]) >= 1 and mrc_answer[0] in i:
-                    best_proper_content = i
-                    tmp_answer.append(i)
+        mrc_hit_words = mrc_answer[MRC_ANSWER]
 
-            if len(tmp_answer) > 2:
-                start_idx = 0
-                save_idx = None
-                for idx, split_item in enumerate(split_index_data):
-                    if mrc_answer[MRC_INDEX][START_IDX] > start_idx and mrc_answer[MRC_INDEX][START_IDX] < split_item[START_IDX]:
-                        save_idx = idx
-                        break
-                    start_idx = split_item[START_IDX]
+        if mrc_hit_words == MRC_NOT_FOUND:
+            return "NotHit", elastic_contents[BEST_VALUE].content, elastic_contents[BEST_VALUE]
 
-                    if mrc_answer[MRC_INDEX][START_IDX] >= split_item[START_IDX]:
-                        save_idx = idx + 1
-
-                best_proper_content = mrc_sentence.split(SENTENCE_SPLIT_SYMBOL)[save_idx]
-
-                if save_idx is None:
-                    best_proper_content = elastic_content[BEST_VALUE]
-
-        return mrc_answer[MRC_ANSWER], best_proper_content, title
+        total_length = 0
+        end_pos = mrc_answer[MRC_INDEX][END_IDX]
+        mrc_answer = ''
+        elastic_hit_idx = 0
+        for idx, mrc_cand_item in enumerate(mrc_cand_list):
+            if end_pos < total_length:
+                mrc_answer = mrc_cand_item[1]
+                elastic_hit_idx = idx
+            total_length += mrc_cand_item[2]
+        return mrc_hit_words, mrc_answer, elastic_contents[elastic_hit_idx]
 
 
 if __name__ == "__main__":
