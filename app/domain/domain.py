@@ -3,13 +3,19 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+
 @dataclass
 class Domain:
     ...
 
+
 @dataclass
-class WikiItem(Domain):
+class WikiTitle(Domain):
     title: str
+
+
+@dataclass
+class WikiItem(WikiTitle):
     first_header: str
     second_header: str
     content: str
