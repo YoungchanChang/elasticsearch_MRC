@@ -14,12 +14,12 @@ boost_fields = [1, 1, 1, 2]
 elastic_script_formula = "(Math.log10(_score + 1)*2) + (cosineSimilarity(params.queryVector, 'content_vector') + 2.0)"
 
 
-def get_elastic_term_dict(noun_token: str, boost: int):
+def get_elastic_term_dict(search_field: str, noun_token: str, boost: int):
     elastic_query = {
         "constant_score": {
             "filter": {
                 "terms": {
-                    "content_noun": [noun_token,]
+                    search_field: [noun_token,]
                 },
             },
             "boost": boost
@@ -43,10 +43,10 @@ def get_match_query(query: str, field: str, boost: int):
 def get_content_template(query: str, query_vector: List, noun_tokens: List, verb_tokens: List):
     should_list = []
     for noun_token in noun_tokens:
-        should_list.append(get_elastic_term_dict(noun_token, NOUN_BOOST))
+        should_list.append(get_elastic_term_dict("content_noun_search", noun_token, NOUN_BOOST))
 
     for verb_token in verb_tokens:
-        should_list.append(get_elastic_term_dict(verb_token, VERB_BOOST))
+        should_list.append(get_elastic_term_dict("content_verb_search", verb_token, VERB_BOOST))
 
     for zip_item in zip(source_fields, boost_fields):
         should_list.append(get_match_query(query, zip_item[FIELD], zip_item[BOOST]))
