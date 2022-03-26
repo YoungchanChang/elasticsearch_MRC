@@ -105,7 +105,7 @@ class WikiControl:
                 yield {
                     "_index": elastic_vector_index,
                     "_source": {
-                            "content-vector": content_vector,
+                            "content_vector": content_vector,
                             "title": title,
                             "first_header": first_header,
                             "second_header": second_header,
