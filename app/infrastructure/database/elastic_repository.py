@@ -1,14 +1,9 @@
 from app.infrastructure.api.wiki_repo import WikipediaRepository
 from app.infrastructure.database.elastic_conn import es
-from app.application.interfaces.nlp import AbstractNLP
 from app.application.interfaces.repository import AbstractRepository
-from app.application.repo_interface import AbstractFinder
-import app.controller.mrc_controller as mrc_con
 from app.application.service.elastic_service import ElasticService
-from app.controller.elastic_controller import get_content_template, get_template, get_es_index_template
-from app.domain.custome_error import WikiDataException
-from app.domain.domain import WikiQuestionItemDTO, Domain, WikiTitle, WikiItem
-from app.domain.entity import QueryDomain, ElasticSearchDomain, ElasticDataDomain, ElasticIndexDomain
+from app.controller.elastic_controller import get_content_template, get_es_index_template
+from app.domain.entity import ElasticSearchDomain, ElasticIndexDomain, WikiTitle
 
 from app.config.settings import *
 from app.infrastructure.nlp_model.nlp import  PororoMecab
@@ -83,9 +78,7 @@ if __name__ == "__main__":
     wiki_repo = WikipediaRepository(nlp_model=pororo_mecab)
     title = "조선"
     wiki_title = WikiTitle(title=title)
-    # for i in wiki_repo.gen_wiki_data(domain=wiki_title):
-    #     print(i)
-    # wiki_repo.create(wiki_title)
+
 
     elastic_repo = ElasticRepository()
     # ElasticIndexDomain(content_vector=)
