@@ -2,12 +2,12 @@ from app.infrastructure.api.wiki_repo import WikipediaRepository
 from app.infrastructure.database.elastic_conn import es
 from app.application.interfaces.repository import AbstractRepository
 from app.application.service.elastic_service import ElasticService
-from app.controller.elastic_controller import get_content_template, get_es_index_template
+from app.controller.elastic_controller import get_content_template, get_es_index_source
 from app.domain.entity import ElasticSearchDomain, ElasticIndexDomain, WikiTitle
 
 from app.config.settings import *
 from app.infrastructure.nlp_model.nlp import  PororoMecab
-
+import uuid
 json_header = {'Content-Type': 'application/json'}
 
 
@@ -24,9 +24,8 @@ class ElasticRepository(AbstractRepository):
                                          content=domain.content,
                                          content_noun_tokens=domain.content_noun_tokens, content_verb_tokens=domain.content_verb_tokens)
 
-        es_idx_dict_form = get_es_index_template(elastic_index=elastic_vector_index, es_data=es_idx_data)
-
-        result = es.create(index=elastic_vector_index, document=es_idx_dict_form)
+        es_idx_dict_form = get_es_index_source(es_data=es_idx_data)
+        result = es.create(index=elastic_vector_index, id=str(uuid.uuid1()),document=es_idx_dict_form)
         return result
 
     def read(self, domain: ElasticSearchDomain):
