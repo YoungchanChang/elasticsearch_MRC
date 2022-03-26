@@ -6,7 +6,7 @@ from app.application.service.elastic_service import ElasticService
 from app.domain.entity import MrcDomain
 from pororo import Pororo
 
-from app.infrastructure.database.elastic_repository import ElasticRepository
+import app.infrastructure.database.elastic_repository as es_repo
 from app.infrastructure.nlp_model.mecab_model import *
 
 se = Pororo(task="sentence_embedding", lang="ko")
@@ -62,7 +62,7 @@ SENTENCE_SPLIT_SYMBOL = " @@@ "
 class ElasticMrc:
 
     def __init__(self):
-        self.es_repo = ElasticRepository()
+        self.es_repo = es_repo.ElasticRepository()
         self.nlp_model = PororoMecab()
         self.es_service = ElasticService(elastic=self.es_repo, nlp_model=self.nlp_model)
 
