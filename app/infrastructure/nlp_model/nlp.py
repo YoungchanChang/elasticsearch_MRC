@@ -70,8 +70,11 @@ class ElasticMrc:
         result = self.es_service.insert_data(sentence=question)
         return result
 
-    def get_mrc_content(self, question: str):
+    def get_content(self, question: str):
         elastic_content = self.es_service.search(sentence=question)
+        return elastic_content
+
+    def get_mrc_content(self, elastic_content: List):
         title = elastic_content[BEST_VALUE]["title"]
         elastic_content = [x["content"] for x in elastic_content]
 
