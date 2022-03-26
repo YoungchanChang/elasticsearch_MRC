@@ -2,13 +2,12 @@ from collections import defaultdict
 from typing import Generator
 
 from app.application.interfaces.nlp import AbstractNLP
-from app.application.repo_interface import AbstractRepository, AbstractFinder
+from app.application.interfaces.repository import AbstractRepository
 from app.controller.elastic_controller import get_es_index_template
 from app.domain.custome_error import WikiDataException
-from app.domain.domain import WikiTitle, WikiItem
 import wikipediaapi
 
-from app.domain.entity import QueryDomain, ElasticIndexDomain
+from app.domain.entity import QueryDomain, ElasticIndexDomain, WikiTitle, WikiItem
 from app.infrastructure.nlp_model.nlp import get_least_meaning
 
 from kss import split_sentences
@@ -41,7 +40,7 @@ class WikipediaRepository(AbstractRepository):
         :param domain: 위키피디아 제목
         :return: 저장 결과
         """
-        result = helpers.bulk(es, self.gen_wiki_data(domain=WikiTitle(title=(domain.title))))
+        result = helpers.bulk(es, self.gen_wiki_data(domain=WikiTitle(title=domain.title)))
         return result
 
     def read(self, domain: WikiTitle):
