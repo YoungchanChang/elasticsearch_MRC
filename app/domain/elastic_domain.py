@@ -45,13 +45,7 @@ def get_title_template(query: str, k: List):
                                     }
                                 }
                             },
-                            {
-                                "match": {
-                                    "content_verb": {
-                                        "query": query,
-                                    }
-                                }
-                            },
+
                         ],
                 },
               },
@@ -69,7 +63,7 @@ def get_title_template(query: str, k: List):
     }
     return body
 
-def get_content_template(title: str, query: str, k: List):
+def get_content_template(title: str, query: str, k: List, mecab_noun_tokens: List, mecab_verb_tokens: List):
     body = {
         "size": CONTENT_LIMIT,
         "_source": ["title", "first_header", "second_header", "content"],
@@ -107,11 +101,35 @@ def get_content_template(title: str, query: str, k: List):
                                 }
                             },
                             {
-                                "match": {
-                                    "content_verb": {
-                                        "query": query,
-                                    }
-                                }
+                                "constant_score": {
+                                    "filter": {
+                                        "terms": {
+                                            "content_noun": [mecab_noun_tokens[0]]
+                                        },
+                                    },
+                                    "boost": 10
+                                },
+                            },
+                            {
+                                "constant_score": {
+                                    "filter": {
+                                        "terms": {
+                                            "content_noun": [mecab_noun_tokens[1]]
+                                        },
+                                    },
+                                    "boost": 10
+                                },
+                            },
+                            {
+                                "constant_score": {
+                                    "filter": {
+                                        "terms": {
+                                            "content_noun": mecab_verb_tokens
+                                        },
+                                    },
+                                    "boost": 10
+
+                                },
                             },
                         ],
                 },
