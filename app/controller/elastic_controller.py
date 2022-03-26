@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Optional
+
+from attr import dataclass
 
 from app.domain.entity import ElasticIndexDomain
 
@@ -6,7 +8,7 @@ FIELD = 0
 BOOST = 1
 NOUN_BOOST = 10
 VERB_BOOST = 5
-CONTENT_LIMIT = 3
+CONTENT_LIMIT = 5
 
 source_fields = ["title", "first_header", "second_header", "content"]
 boost_fields = [1, 1, 1, 2]
@@ -93,3 +95,15 @@ def get_es_index_source(es_data: ElasticIndexDomain):
             "content_noun_search": es_data.content_noun_tokens,
             "content_verb_search": es_data.content_verb_tokens,
     }
+
+
+@dataclass
+class ElasticParsingResult:
+    score: int
+    title: str
+    first_header: str
+    second_header: str
+    content: str
+    content_noun_tokens: Optional[List]
+    content_verb_tokens: Optional[List]
+    content_match_tokens: Optional[List]
