@@ -4,15 +4,16 @@ import traceback
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 
-from app.controller.mrc_control import MRC
-from app.domain.custome_error import WikiDataException
-from app.domain.domain import WikiQuestionItem, WikiQuestionItemDTO
-from app.infrastructure.database.elastic_repository import WikiSearch, ElasticContent
+from app.controller.fastapi_controller import WikiQuestionItem, ElasticIndexItem
+from app.domain.custom_error import WikiDataException
+from app.domain.entity import QueryDomain, ElasticIndexDomain
+from app.infrastructure.database.elastic_repository import ElasticRepository
+from app.infrastructure.nlp_model.nlp import ElasticMrc, PororoMecab
 
 formatter = "%(asctime)s.%(msecs)03d\t%(levelname)s\t[%(name)s]\t%(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter, datefmt='%m/%d/%Y %I:%M:%S')
 
-MRC_ANSWER = 0
+MRC_FILTER_SENTENCE = 2
 
 router = APIRouter(
     prefix="/mrc",
@@ -21,16 +22,16 @@ router = APIRouter(
 )
 
 
-@router.post("/wiki_question")
+@router.post("/search_sentence")
 async def find_data(wiki_question_item: WikiQuestionItem):
-    mrc = MRC()
+    elastic_mrc = ElasticMrc()
 
     try:
 
-        mrc_answer, best_proper_content = mrc.filter_mrc_content(wiki_question_item.question)
+        elastic_content = elastic_mrc.get_content(question=wiki_question_item.question)
+        mrc_filtered_content = elastic_mrc.get_mrc_content(question=wiki_question_item.question, elastic_contents=elastic_content)
 
-        return_json = {"mrc_answer": mrc_answer,
-                       "best_proper_content": best_proper_content,}
+        return_json = {"best_proper_sentence": mrc_filtered_content[MRC_FILTER_SENTENCE]}
 
         return jsonable_encoder(return_json)
 
@@ -46,12 +47,25 @@ async def find_data(wiki_question_item: WikiQuestionItem):
         return jsonable_encoder(return_json)
 
 
-@router.post("/wiki_insert")
-async def insert_data(wiki_question_item: WikiQuestionItem):
-
+@router.post("/insert_document")
+async def insert_data(elastic_index: ElasticIndexItem):
+    pororo_nlp = PororoMecab()
+    es_repo = ElasticRepository()
     try:
+        _query = QueryDomain(query=elastic_index.title)
+        embedding_vectors = pororo_nlp.get_embeddings(domain=_query)
+        nouns, verbs = pororo_nlp.get_nouns_verbs(domain=QueryDomain(query=elastic_index.content))
+        nouns = list(set(list(nouns)))
+        verbs = list(set(list(verbs)))
+        elastic_index_domain = ElasticIndexDomain(content_vector=embedding_vectors,
+                                                  title=elastic_index.title,
+                                                  first_header=elastic_index.first_header,
+                                                  second_header=elastic_index.second_header,
+                                                  content=elastic_index.content,
+                                                  content_noun_tokens=nouns,
+                                                  content_verb_tokens=verbs)
+        result = es_repo.create(elastic_index_domain)
 
-        result = ElasticContent().create(WikiQuestionItemDTO(title=wiki_question_item.question, question=None))
         return_json = {"result": result}
 
         return jsonable_encoder(return_json)
