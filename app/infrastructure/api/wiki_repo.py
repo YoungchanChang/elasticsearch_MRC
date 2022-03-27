@@ -17,15 +17,6 @@ from app.infrastructure.database.elastic_conn import es
 
 wiki_wiki = wikipediaapi.Wikipedia('ko')
 
-# class WikiContent(AbstractFinder):
-#
-#     def find_one(self, model: WikiTitle):
-#         page_py = wiki_wiki.page(model.title)
-#
-#         if page_py.text == '':
-#             raise WikiDataException("위키피디아 데이터 없음")
-#         return page_py
-
 
 class WikipediaRepository(AbstractRepository):
 
