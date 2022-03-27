@@ -1,12 +1,13 @@
 import logging
-
 import traceback
+
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 
 from app.controller.fastapi_controller import WikiQuestionItem, ElasticIndexItem
 from app.domain.custom_error import WikiDataException
-from app.domain.entity import QueryDomain, ElasticIndexDomain
+from app.domain.entity import QueryDomain, ElasticIndexDomain, WikiTitle
+from app.infrastructure.api.wiki_repo import WikipediaRepository
 from app.infrastructure.database.elastic_repository import ElasticRepository
 from app.infrastructure.nlp_model.nlp import ElasticMrc, PororoMecab
 
@@ -65,6 +66,27 @@ async def insert_data(elastic_index: ElasticIndexItem):
                                                   content_noun_tokens=nouns,
                                                   content_verb_tokens=verbs)
         result = es_repo.create(elastic_index_domain)
+
+        return_json = {"result": result}
+
+        return jsonable_encoder(return_json)
+
+
+    except Exception as e:
+        error_msg = traceback.format_exc()
+        logging.critical({'status': 'fail', "message": error_msg})
+        return_json = {"result": "서버에 문제가 생겼습니다. 관리자에게 문의하세요."}
+        return jsonable_encoder(return_json)
+
+
+@router.post("/insert_wiki_subject")
+async def insert_wiki_data(wiki_question_item: WikiQuestionItem):
+
+    try:
+        pororo_mecab = PororoMecab()
+        wiki_repo = WikipediaRepository(nlp_model=pororo_mecab)
+        wiki_title = WikiTitle(title=wiki_question_item.question)
+        result = wiki_repo.create(domain=wiki_title)
 
         return_json = {"result": result}
 
