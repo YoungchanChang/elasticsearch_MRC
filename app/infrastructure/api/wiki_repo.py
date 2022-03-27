@@ -4,18 +4,28 @@ from typing import Generator
 from app.application.interfaces.nlp import AbstractNLP
 from app.application.interfaces.repository import AbstractRepository
 from app.controller.elastic_controller import get_es_index_template
-from app.domain.custome_error import WikiDataException
+
 import wikipediaapi
 
+from app.domain.custom_error import WikiDataException
 from app.domain.entity import QueryDomain, ElasticIndexDomain, WikiTitle, WikiItem
 from app.infrastructure.nlp_model.nlp import get_least_meaning
 
-from kss import split_sentences
 from app.config.settings import *
 from elasticsearch import helpers
 from app.infrastructure.database.elastic_conn import es
 
 wiki_wiki = wikipediaapi.Wikipedia('ko')
+
+
+def split_wiki_sentence(split_target: str):
+
+    for sentence_line in split_target.splitlines():
+        for sentence_split_item in sentence_line.split("다."):
+            if sentence_split_item == '':
+                continue
+            print(sentence_split_item + "다.")
+            yield sentence_split_item.strip() + "다."
 
 
 class WikipediaRepository(AbstractRepository):
@@ -50,7 +60,7 @@ class WikipediaRepository(AbstractRepository):
 
         page_py = self.read(WikiTitle(title=title))
 
-        for page_item in split_sentences(page_py.summary):
+        for page_item in split_wiki_sentence(page_py.summary):
             yield WikiItem(title=page_py.title,
                            first_header=page_py.title,
                            second_header=page_py.title,
@@ -62,7 +72,7 @@ class WikipediaRepository(AbstractRepository):
                 for page_test_item in page_sec_item.text.split("\n"):
                     if page_test_item == "" or page_test_item == "\t\t":
                         continue
-                    for page_item_one_sentence in split_sentences(page_test_item):
+                    for page_item_one_sentence in split_wiki_sentence(page_test_item):
                         yield WikiItem(title=page_py.title,
                                        first_header=page_section.title,
                                        second_header=page_sec_item.title,
