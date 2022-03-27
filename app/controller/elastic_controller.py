@@ -13,7 +13,7 @@ CONTENT_LIMIT = 5
 source_fields = ["title", "first_header", "second_header", "content"]
 boost_fields = [1, 1, 1, 2]
 
-elastic_script_formula = "(Math.log10(_score + 1)*2) + (cosineSimilarity(params.queryVector, 'content_vector') + 2.0)"
+elastic_script_formula = "(Math.log10(_score + 1)) * (cosineSimilarity(params.queryVector, 'content_vector') + 2.0)"
 
 
 def get_elastic_term_dict(search_field: str, noun_token: str, boost: int):
