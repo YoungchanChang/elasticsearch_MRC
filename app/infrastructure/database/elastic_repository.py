@@ -1,4 +1,4 @@
-from app.infrastructure.api.wiki_repo import WikipediaRepository
+import app.infrastructure.api.wiki_repo as w_r
 from app.infrastructure.database.elastic_conn import es
 from app.application.interfaces.repository import AbstractRepository
 from app.application.service.elastic_service import ElasticService
@@ -6,7 +6,7 @@ from app.controller.elastic_controller import get_content_template, get_es_index
 from app.domain.entity import ElasticSearchDomain, ElasticIndexDomain, WikiTitle
 
 from app.config.settings import *
-from app.infrastructure.nlp_model.nlp import  PororoMecab
+import app.infrastructure.nlp_model.nlp as p_r
 import uuid
 json_header = {'Content-Type': 'application/json'}
 
@@ -44,37 +44,9 @@ class ElasticRepository(AbstractRepository):
         return resp['hits']['hits']
 
 
-
-# class ElasticContent(AbstractRepository):
-#
-#     def create(self, model: WikiQuestionItemDTO):
-#         """
-#         위키피디아에서 검색 후 데이터 생성
-#         :param model: 위키피디아 주제, 질문 데이터
-#         :return:
-#         """
-#         wiki_control = mrc_con.WikiControl()
-#         result = helpers.bulk(es, wiki_control.gen_vector_data(model.title))
-#         return result
-#
-#     def find_one(self, model: WikiQuestionItemDTO):
-#         result = es.search(index=elastic_vector_index,
-#                            body=mrc_con.get_encoded_content_template(model.title, model.question))
-#         resp = result.body
-#         return resp['hits']['hits']
-#
-#
-# class ElasticTitle(AbstractFinder):
-#
-#     def find_one(self, model: WikiQuestionItemDTO):
-#         result = es.search(index=elastic_vector_index, body=mrc_con.get_encoded_title_template(model.question))
-#         resp = result.body
-#         return resp['hits']['hits'][0]["_source"]['title']
-
-
 if __name__ == "__main__":
-    pororo_mecab = PororoMecab()
-    wiki_repo = WikipediaRepository(nlp_model=pororo_mecab)
+    pororo_mecab = p_r.PororoMecab()
+    wiki_repo = w_r.WikipediaRepository(nlp_model=pororo_mecab)
     title = "조선"
     wiki_title = WikiTitle(title=title)
 
