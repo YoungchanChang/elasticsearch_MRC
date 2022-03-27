@@ -118,12 +118,19 @@ class ElasticMrc:
         end_pos = mrc_answer[MRC_INDEX][END_IDX]
         mrc_answer = ''
         elastic_hit_idx = 0
+        answer_found = False
         for idx, mrc_cand_item in enumerate(mrc_cand_list):
             total_length += mrc_cand_item[2]
             if end_pos < total_length:
                 mrc_answer = mrc_cand_item[1]
                 elastic_hit_idx = idx
-                break
+
+                if mrc_hit_words in mrc_cand_item[1]:
+                    answer_found = True
+                    break
+
+        if (mrc_hit_words == MRC_NOT_FOUND) and answer_found:
+            return "NotHit", elastic_contents[BEST_VALUE].content, elastic_contents[BEST_VALUE]
 
         return mrc_hit_words, mrc_answer, elastic_contents[elastic_hit_idx]
 
