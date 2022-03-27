@@ -129,7 +129,7 @@ class ElasticMrc:
                     answer_found = True
                     break
 
-        if (mrc_hit_words == MRC_NOT_FOUND) and answer_found:
+        if (mrc_hit_words == MRC_NOT_FOUND) or answer_found is False:
             return "NotHit", elastic_contents[BEST_VALUE].content, elastic_contents[BEST_VALUE]
 
         return mrc_hit_words, mrc_answer, elastic_contents[elastic_hit_idx]
