@@ -5,7 +5,7 @@ from app.application.interfaces.nlp import AbstractNLP
 from app.application.interfaces.repository import AbstractRepository
 from app.application.service.keyword_vector_repository import KeywordVectorRepository
 from app.controller.adapter.elastic_dto import ElasticParsingResult
-from app.domain.entity import MrcDomain
+from app.domain.entity import MrcDomain, QueryDomain
 
 
 def parse_elastic_data(elastic_item: dict) -> ElasticParsingResult:
@@ -57,11 +57,13 @@ class ElasticMrcController(KeywordVectorRepository):
         self.repository = repository
 
     def put_mrc_content(self, question: str):
-        result = self.create(query=question)
+        query_domain = QueryDomain(query=question)
+        result = self.repository.create(domain=query_domain)
         return result
 
     def get_content(self, question: str):
-        elastic_content = self.read(query=question)
+        query_domain = QueryDomain(query=question)
+        elastic_content = self.repository.read(domain=query_domain)
         return elastic_content
 
     def get_mrc_candidates(self, elastic_contents: List):
