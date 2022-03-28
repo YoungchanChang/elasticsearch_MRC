@@ -12,7 +12,7 @@ from app.controller.error_handler.custom_error import WikiDataException
 from app.domain.entity import QueryDomain
 from app.infrastructure.api.wiki_repo import WikipediaRepository
 from app.infrastructure.database.elastic_repository import ElasticRepository
-from app.infrastructure.nlp_model.nlp import ElasticMrc, PororoMecab
+from app.infrastructure.nlp_model.nlp import PororoMecab
 
 formatter = "%(asctime)s.%(msecs)03d\t%(levelname)s\t[%(name)s]\t%(message)s"
 logging.basicConfig(level=logging.DEBUG, format=formatter, datefmt='%m/%d/%Y %I:%M:%S')
