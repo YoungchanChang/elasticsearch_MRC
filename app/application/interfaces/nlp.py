@@ -1,12 +1,12 @@
 import abc
 from typing import List
 
-from app.domain.entity import Domain, QueryDomain
+from app.domain.entity import MrcDomain, QueryDomain
 
 
 class AbstractNLP(abc.ABC):
     @abc.abstractmethod
-    def predict(self, domain: Domain):
+    def predict(self, domain: MrcDomain):
         ...
 
     @abc.abstractmethod
