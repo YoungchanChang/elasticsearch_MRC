@@ -9,7 +9,7 @@ import wikipediaapi
 from app.controller.adapter.elastic_dsl import get_es_index_template
 from app.controller.adapter.elastic_dto import ElasticFieldDto
 from app.controller.adapter.wiki_dto import WikiTitle, WikiItem
-from app.domain.custom_error import WikiDataException
+from app.controller.error_handler.custom_error import WikiDataException
 from app.domain.entity import QueryDomain
 from app.infrastructure.nlp_model.nlp import get_least_meaning
 
