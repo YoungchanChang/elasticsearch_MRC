@@ -4,9 +4,11 @@ import traceback
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 
-from app.controller.fastapi_controller import WikiQuestionItem, ElasticIndexItem
+from app.controller.adapter.elastic_dto import ElasticFieldDto
+from app.controller.adapter.fastapi_dto import WikiQuestionItem, ElasticIndexItem
+from app.controller.adapter.wiki_dto import WikiTitle
 from app.domain.custom_error import WikiDataException
-from app.domain.entity import QueryDomain, ElasticIndexDomain, WikiTitle
+from app.domain.entity import QueryDomain
 from app.infrastructure.api.wiki_repo import WikipediaRepository
 from app.infrastructure.database.elastic_repository import ElasticRepository
 from app.infrastructure.nlp_model.nlp import ElasticMrc, PororoMecab
@@ -58,19 +60,18 @@ async def insert_data(elastic_index: ElasticIndexItem):
         nouns, verbs = pororo_nlp.get_nouns_verbs(domain=QueryDomain(query=elastic_index.content))
         nouns = list(set(list(nouns)))
         verbs = list(set(list(verbs)))
-        elastic_index_domain = ElasticIndexDomain(content_vector=embedding_vectors,
-                                                  title=elastic_index.title,
-                                                  first_header=elastic_index.first_header,
-                                                  second_header=elastic_index.second_header,
-                                                  content=elastic_index.content,
-                                                  content_noun_tokens=nouns,
-                                                  content_verb_tokens=verbs)
+        elastic_index_domain = ElasticFieldDto(content_vector=embedding_vectors,
+                                               title=elastic_index.title,
+                                               first_header=elastic_index.first_header,
+                                               second_header=elastic_index.second_header,
+                                               content=elastic_index.content,
+                                               content_noun_tokens=nouns,
+                                               content_verb_tokens=verbs)
         result = es_repo.create(elastic_index_domain)
 
         return_json = {"result": result}
 
         return jsonable_encoder(return_json)
-
 
     except Exception as e:
         error_msg = traceback.format_exc()
@@ -87,7 +88,6 @@ async def insert_wiki_data(wiki_question_item: WikiQuestionItem):
         wiki_repo = WikipediaRepository(nlp_model=pororo_mecab)
         wiki_title = WikiTitle(title=wiki_question_item.question)
         result = wiki_repo.create(domain=wiki_title)
-
         return_json = {"result": result}
 
         return jsonable_encoder(return_json)
