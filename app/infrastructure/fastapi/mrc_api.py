@@ -7,6 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from app.controller.adapter.elastic_dto import ElasticFieldDto
 from app.controller.adapter.fastapi_dto import WikiQuestionItem, ElasticIndexItem
 from app.controller.adapter.wiki_dto import WikiTitle
+from app.controller.elastic_controller import ElasticMrcController
 from app.controller.error_handler.custom_error import WikiDataException
 from app.domain.entity import QueryDomain
 from app.infrastructure.api.wiki_repo import WikipediaRepository
@@ -27,7 +28,8 @@ router = APIRouter(
 
 @router.post("/search_sentence")
 async def find_data(wiki_question_item: WikiQuestionItem):
-    elastic_mrc = ElasticMrc()
+
+    elastic_mrc = ElasticMrcController(repository=ElasticRepository(),nlp_model=PororoMecab())
 
     try:
 
