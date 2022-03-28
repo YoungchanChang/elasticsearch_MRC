@@ -1,7 +1,7 @@
 import abc
 from typing import List
 
-from app.domain.entity import Domain
+from app.domain.entity import Domain, QueryDomain
 
 
 class AbstractNLP(abc.ABC):
@@ -10,13 +10,13 @@ class AbstractNLP(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_embeddings(self, domain: Domain) -> List:
+    def get_embeddings(self, domain: QueryDomain) -> List:
         ...
 
     @abc.abstractmethod
-    def get_nouns_verbs(self, domain: Domain) -> (List, List):
+    def get_nouns_verbs(self, domain: QueryDomain) -> (List, List):
         ...
 
     @abc.abstractmethod
-    def get_pos(self, domain: Domain) -> List:
+    def get_pos(self, domain: QueryDomain) -> List:
         ...
