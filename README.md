@@ -1,6 +1,6 @@
 # elasticsearch_MRC
 
-엘라스틱서치에서 문장 단위 검색
+엘라스틱서치와 MRC를 활용한 문장 단위 검색
 - 엘라스틱서치 키워드 기반 검색
 - 엘라스틱서치 BM25 기반 검색
 - 엘라스틱서치 코사인 유사도 기반 검색
@@ -8,7 +8,7 @@
 
 # Required
 - 엘라스틱서치 7.9.1 이상 설치
-- app/infrastructure/database/http_ca.crt 변경 필수(ref : https://chatbottalk.tistory.com/244)
+- 실행시 app/infrastructure/database/http_ca.crt 변경 필수(ref : https://chatbottalk.tistory.com/244)
 
 # Details
 
@@ -93,7 +93,6 @@ If you find this code useful, please refer it in publications as:
   author = {Youngchan Chang},
   title = {elasticsearch_MRC},
   year = {2022},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/YoungchanChang/elasticsearch_MRC}}
+  email = {san0558@naver.com},
+  howpublished = {https://github.com/YoungchanChang/elasticsearch_MRC}
 }
