@@ -37,22 +37,6 @@ class PororoMecab(AbstractNLP):
         return [(x[0], x[1].pos) for x in mecab_parsed]
 
 
-class ElasticMrc(ElasticMrcController):
-
-    def __init__(self):
-        super().__init__(nlp_model=PororoMecab())
-        self.es_repo = es_repo.ElasticRepository()
-        self.es_service = KeywordVectorRepository(repository=self.es_repo, nlp_model=self.nlp_model)
-
-    def put_mrc_content(self, question: str):
-        result = self.es_service.create(query=question)
-        return result
-
-    def get_content(self, question: str):
-        elastic_content = self.es_service.read(query=question)
-        return elastic_content
-
-
 if __name__ == "__main__":
     d_item = "잡혔었었다."
     for i in list(MecabInflectParser("김보당은 정중부에게 붙잡혔다.").gen_mecab_compound_token_feature()):
