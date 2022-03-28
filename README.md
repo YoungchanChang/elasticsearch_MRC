@@ -15,15 +15,50 @@
 - 엘라스틱서치 검색시 키워드, BM25, 코사인 유사도 기준으로 검색
 - 엘라스틱서치 검색 결과와 질의문을 MRC에 삽입 후 나온 결과를 정답 후보 문장으로 추출 
 
+# UseCase
+
+<figure>
+<img src=https://i.imgur.com/3euBjA6.png" alt="views">
+<figcaption>유스케이스 다이어그램</figcaption>
+</figure>
+
+# API문서
+
+- 엘라스틱서치 문장 검색 API
+
+RequestAPI: /mrc/search_sentence
+
+
+| 파라미터     | 타입     | 필수여부 | 설명        |
+|----------|--------|------|-----------|
+| question | string | Y    | 사용자 발화 문장 |
+
+
+ResponseAPI:
+
+- 검색 문서 정보
+
+| 파라미터                    | 타입      | 필수여부 | 설명              |
+|-------------------------|---------|------|-----------------|
+| best_proper_sentence    | Objects | Y    | 가장 적합한 문서 정보    |
+| best_proper_sentence 속성 | -       | -    | -               |
+| score                   | float   | Y    | 엘라스틱서치 검색 총합 점수 |
+| title                   | string  | Y    | 제목              |
+| first_header            | string  | Y    | 부제목             |
+| second_header           | string  | Y    | 소제목             |
+| content                 | string  | Y    | 검색 문서           |
+| content_noun_tokens     | List    | Y    | 문서 명사 검색 키워드    |
+| content_verb_tokens     | List    | Y    | 문서 동사 검색 키워드    |
+| content_match_tokens    | List    | Y    | 텍스트 검색 키워드      |
+
 # Test Result
 
 - 결과 : 의미 기반을 추가한 경우 약 7% 향상
-- 테스트 데이터 : 위키피디아에서 고조선, 조선, 고구려, 고려
-- 키워드 기반 검색 + 코사인 유사도를 통해 추출한 값들 중 MRC에 매칭되는 문장 추출 
+  - 테스트 데이터 : 위키피디아에서 고조선, 조선, 고구려, 고려
 
 # Test Result Detail
 
-- 하단 URL 참조
+- 상세 테스트 결과 : 하단 URL 참조
 
 https://docs.google.com/spreadsheets/d/1rEZSJL4-MJ4ADrOcsktuSw6RsLpAXmDxfizNGBKzDwg/edit#gid=1395843693
 
