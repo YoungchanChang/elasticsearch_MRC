@@ -3,12 +3,14 @@ from typing import Generator
 
 from app.application.interfaces.nlp import AbstractNLP
 from app.application.interfaces.repository import AbstractRepository
-from app.controller.elastic_controller import get_es_index_template
 
 import wikipediaapi
 
+from app.controller.adapter.elastic_dsl import get_es_index_template
+from app.controller.adapter.elastic_dto import ElasticFieldDto
+from app.controller.adapter.wiki_dto import WikiTitle, WikiItem
 from app.domain.custom_error import WikiDataException
-from app.domain.entity import QueryDomain, ElasticIndexDomain, WikiTitle, WikiItem
+from app.domain.entity import QueryDomain
 from app.infrastructure.nlp_model.nlp import get_least_meaning
 
 from app.config.settings import *
@@ -110,10 +112,10 @@ class WikipediaRepository(AbstractRepository):
                 nouns = list(set(list(nouns)))
                 verbs = list(set(list(verbs)))
 
-                es_idx_data = ElasticIndexDomain(content_vector=content_vector,
-                                   title=title, first_header=first_header, second_header=second_header,
-                                   content=d_item,
-                                   content_noun_tokens=nouns, content_verb_tokens=verbs)
+                es_idx_data = ElasticFieldDto(content_vector=content_vector,
+                                              title=title, first_header=first_header, second_header=second_header,
+                                              content=d_item,
+                                              content_noun_tokens=nouns, content_verb_tokens=verbs)
 
                 es_idx_dict_form = get_es_index_template(elastic_index=elastic_vector_index, es_data=es_idx_data)
                 yield es_idx_dict_form
