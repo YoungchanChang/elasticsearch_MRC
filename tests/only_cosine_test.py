@@ -1,8 +1,8 @@
 import re
 
-from app.application.service.elastic_service import ElasticService
-from app.config.settings import elastic_vector_index
-from app.domain.entity import ElasticIndexDomain, QueryDomain, ElasticSearchDomain
+from app.controller.adapter.elastic_dto import ElasticFieldDto
+from app.controller.elastic_controller import parse_elastic_data
+from app.domain.entity import KeywordVectorDomain, QueryDomain
 from app.infrastructure.database.elastic_repository import ElasticRepository
 from app.infrastructure.nlp_model.nlp import PororoMecab, ElasticMrc
 from scripts.elastic_vector_index import set_wiki_index
@@ -23,11 +23,11 @@ def put_test_data():
             _query = QueryDomain(query=query)
             embedding_vectors = pororo_nlp.get_embeddings(domain=_query)
 
-            elastic_index_domain = ElasticIndexDomain(content_vector=embedding_vectors, title=title, first_header=title,
-                                                      second_header=title,
-                                                      content=query,
-                                                      content_noun_tokens=content_noun_tokens,
-                                                      content_verb_tokens=content_verb_tokens)
+            elastic_index_domain = ElasticFieldDto(content_vector=embedding_vectors, title=title, first_header=title,
+                                                   second_header=title,
+                                                   content=query,
+                                                   content_noun_tokens=content_noun_tokens,
+                                                   content_verb_tokens=content_verb_tokens)
             es_repo.create(elastic_index_domain)
 
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     query = "철수랑 영희가 언제 집에 있었지"
     _query = QueryDomain(query=query)
     embedding_vectors = pororo_nlp.get_embeddings(domain=_query)
-    elastic_domain = ElasticSearchDomain(query="", query_vector=embedding_vectors,
+    elastic_domain = KeywordVectorDomain(query="", query_vector=embedding_vectors,
                                          noun_tokens=content_noun_tokens,
                                          verb_tokens=content_verb_tokens)
     elastic_repo = ElasticRepository()
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     with open('./test_data/only_cosine_result.csv', 'a', encoding='utf-8-sig', newline='') as writer_csv:
 
         for read_item in read_data:
-            elastic_parsing_result = elastic_mrc.extract_elastic_data(elastic_item=read_item)
+            elastic_parsing_result = parse_elastic_data(elastic_item=read_item)
             print(elastic_parsing_result)
             writer = csv.writer(writer_csv, delimiter=',')
 
