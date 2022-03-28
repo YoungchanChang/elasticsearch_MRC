@@ -40,7 +40,7 @@ class ElasticRepository(AbstractRepository):
                                              query_vector=domain.query_vector,
                                              noun_tokens=domain.noun_tokens,
                                              verb_tokens=domain.verb_tokens)
-        result = es.read(index=elastic_vector_index,
+        result = es.search(index=elastic_vector_index,
                          body=body_template)
         resp = result.body
         return resp['hits']['hits']
