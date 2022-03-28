@@ -1,6 +1,6 @@
 from typing import List
 
-from app.controller.adapter.elastic_dto import RepositoryFieldDomain
+from app.controller.adapter.elastic_dto import ElasticFieldDto
 
 FIELD = 0
 BOOST = 1
@@ -100,7 +100,7 @@ def get_content_template(query: str, query_vector: List, noun_tokens: List, verb
     return body
 
 
-def get_es_index_source(es_data: RepositoryFieldDomain):
+def get_es_index_source(es_data: ElasticFieldDto):
 
     """엘라스틱서치
 
@@ -118,7 +118,7 @@ def get_es_index_source(es_data: RepositoryFieldDomain):
             "content_verb_search": es_data.content_verb_tokens,
     }
 
-def get_es_index_template(elastic_index: str, es_data: RepositoryFieldDomain):
+def get_es_index_template(elastic_index: str, es_data: ElasticFieldDto):
     return {
         "_index": elastic_index,
         "_source": get_es_index_source(es_data=es_data)
