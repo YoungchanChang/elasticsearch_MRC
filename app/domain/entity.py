@@ -37,13 +37,6 @@ class ElasticSearchDomain(QueryDomain):
     verb_tokens: List
 
 
-@dataclass
-class MrcDomain(QueryDomain):
-    """
-    MRC에 질의하기 위한 데이터 클래스
-    """
-    search_string: str
-
 
 @dataclass
 class ElasticIndexDomain(Domain):
@@ -57,3 +50,11 @@ class ElasticIndexDomain(Domain):
     content: str
     content_noun_tokens: List
     content_verb_tokens: List
+
+
+@dataclass
+class MrcDomain(QueryDomain):
+    """
+    MRC에 질의하기 위한 데이터 클래스
+    """
+    search_string: str
