@@ -1,11 +1,10 @@
 import re
 
 from app.controller.adapter.elastic_dto import ElasticFieldDto
-from app.controller.elastic_controller import parse_elastic_data
+from app.controller.elastic_controller import parse_elastic_data, ElasticMrcController
 from app.domain.entity import KeywordVectorDomain, QueryDomain
 from app.infrastructure.database.elastic_repository import ElasticRepository
-from app.infrastructure.nlp_model.nlp import PororoMecab, ElasticMrc
-from scripts.elastic_vector_index import set_wiki_index
+from app.infrastructure.nlp_model.nlp import PororoMecab
 import csv
 
 title = "test"
@@ -48,7 +47,7 @@ if __name__ == "__main__":
                                          verb_tokens=content_verb_tokens)
     elastic_repo = ElasticRepository()
     read_data = elastic_repo.read(domain=elastic_domain)
-    elastic_mrc = ElasticMrc()
+    elastic_mrc = ElasticMrcController(repository=elastic_repo, nlp_model=pororo_nlp)
 
     elastic_content = elastic_mrc.get_content(question=query)
     value = elastic_mrc.get_mrc_content(question=query, elastic_contents=elastic_content)
