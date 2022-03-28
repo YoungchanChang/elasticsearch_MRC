@@ -57,13 +57,11 @@ class ElasticMrcController(KeywordVectorRepository):
         self.repository = repository
 
     def put_mrc_content(self, question: str):
-        query_domain = QueryDomain(query=question)
-        result = self.repository.create(domain=query_domain)
+        result = self.create(query=question)
         return result
 
     def get_content(self, question: str):
-        query_domain = QueryDomain(query=question)
-        elastic_content = self.repository.read(domain=query_domain)
+        elastic_content = self.read(query=question)
         return elastic_content
 
     def get_mrc_candidates(self, elastic_contents: List):
