@@ -2,6 +2,8 @@ import re
 from typing import List
 
 from app.application.interfaces.nlp import AbstractNLP
+from app.application.interfaces.repository import AbstractRepository
+from app.application.service.keyword_vector_repository import KeywordVectorRepository
 from app.controller.adapter.elastic_dto import ElasticParsingResult
 from app.domain.entity import MrcDomain
 
@@ -36,7 +38,7 @@ def parse_elastic_data(elastic_item: dict) -> ElasticParsingResult:
     return elastic_parsing_result
 
 
-class ElasticMrcController:
+class ElasticMrcController(KeywordVectorRepository):
 
     ITEM_SENTENCE = 1
     ITEM_LENGTH = 2
@@ -48,8 +50,19 @@ class ElasticMrcController:
 
     SENTENCE_SPLIT_SYMBOL = "@"
 
-    def __init__(self, nlp_model: AbstractNLP):
+    def __init__(self, repository: AbstractRepository, nlp_model: AbstractNLP):
+
+        super().__init__(repository=repository, nlp_model=nlp_model)
         self.nlp_model = nlp_model
+        self.repository = repository
+
+    def put_mrc_content(self, question: str):
+        result = self.create(query=question)
+        return result
+
+    def get_content(self, question: str):
+        elastic_content = self.read(query=question)
+        return elastic_content
 
     def get_mrc_candidates(self, elastic_contents: List):
 
