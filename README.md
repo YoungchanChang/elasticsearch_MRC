@@ -7,8 +7,7 @@
 - MRC 활용하여 엘라스틱 서치 검색 결과 필터링
 
 # Required
-- 엘라스틱서치 7.9.1 이상 설치
-- 실행시 app/infrastructure/database/http_ca.crt 변경 필수(ref : https://chatbottalk.tistory.com/244)
+- 엘라스틱서치 7.3.0 이상 설치
 
 # Details
 
