@@ -1,4 +1,4 @@
-# elasticsearch_MRC
+# elasticsearch_chat
 
 엘라스틱서치와 MRC를 활용한 문장 단위 검색
 - 엘라스틱서치 키워드 기반 검색
